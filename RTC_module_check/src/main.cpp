@@ -1,15 +1,36 @@
 #include <Arduino.h>
+#include <Wire.h>
+#include <RTClib.h>
+
+RTC_DS3231 rtc;
 
 void setup() {
-  // put your setup code here, to run once:
-  pinMode(LED_BUILTIN, OUTPUT);
+    Serial.begin(9600);
+    Wire.begin();
+    if (!rtc.begin()) {
+        Serial.println("Couldn't find RTC");
+        while (1);
+    }
+
+    if (rtc.lostPower()) {
+        Serial.println("RTC lost power, let's set the time!");
+        rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(100);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(100);
+    DateTime now = rtc.now();
+    Serial.print(now.year(), DEC);
+    Serial.print('/');
+    Serial.print(now.month(), DEC);
+    Serial.print('/');
+    Serial.print(now.day(), DEC);
+    Serial.print(" ");
+    Serial.print(now.hour(), DEC);
+    Serial.print(':');
+    Serial.print(now.minute(), DEC);
+    Serial.print(':');
+    Serial.print(now.second(), DEC);
+    Serial.println();
+    delay(1000);
 }
-
